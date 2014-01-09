@@ -13,11 +13,11 @@ import scala.util.{ Failure, Success }
 object ToggleActor {
 
   val question = "Hot or Cold?"
-  val propsToggle = Props[Toggle]
+  val propsToggle = Props[ToggleActor]
 
 }
 
-class Toggle extends Actor {
+class ToggleActor extends Actor {
   def cold: Receive = {
     case ToggleActor.question => {
       sender ! "cold"
