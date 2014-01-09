@@ -1,19 +1,15 @@
-package com.p44.actors
+package com.p44.actors.store.one
 
 import com.p44.models._
 import akka.actor._
-import play.api.Logger
 import scala.collection.mutable._
-import scala.concurrent.Future
 import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{ Failure, Success }
 
 /**
  * The fish store.
  * Receiving fish, unload, stack, sell, package.
  *
- * Shipment of Fish --> Controller --> Unloader --> Catcher + Stacker
+ * Delivery of Fish --> Controller --> Unloader --> Catcher + Stacker
  *
  * This example uses the Play default thread pool with default settings.
  */

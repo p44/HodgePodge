@@ -1,21 +1,19 @@
-package com.p44.actors
+package com.p44.actors.store.one
 
 import org.specs2.mutable.Specification
 import akka.actor.ActorSystem
 import akka.testkit.TestProbe
-
 import play.api.test._
 import play.api.test.Helpers._
-
 import com.p44.models._
 
 object FishStoreOneSpec extends Specification {
 
-  //sbt > test-only com.p44.actors.FishStoreOneSpec
+  //sbt > test-only com.p44.actors.store.one.FishStoreOneSpec
 
   sequential
 
-  val delivery = List(Fish("trout", 2.5), Fish("trout", 2.6), Fish("mackerel", 10.5))
+  val delivery = List(Fish("trout", 2.5), Fish("trout", 2.6), Fish("mackerel", 3.5))
 
   "FishStoreOne" should {
     "Deliver" in {
