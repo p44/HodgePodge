@@ -1,18 +1,27 @@
 package controllers
 
-import play.api.mvc.Action
-import play.api.mvc.Controller
-import play.api.libs.json._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.util.{ Failure, Success }
 
+import play.api.mvc.Action
+import play.api.mvc.Controller
+
+/**
+ * Index page, hello page and other simple returns
+ */
 object SimpleController extends Controller {
 
-  lazy val homeMsg = "This is Hodge Podge"
+  lazy val homeMsg: String = "This is Hodge Podge"
+  lazy val helloMsg: String = "Hello There" 
 
-  def index = Action.async {
-	Future.successful(Ok(homeMsg))
+  def index = Action {
+	Ok(homeMsg)
+  }
+  
+  def hello(name: String) = Action.async {
+	Future {
+	  Ok(helloMsg + ", " + name + ". " + homeMsg)
+	}
   }
 
 }
