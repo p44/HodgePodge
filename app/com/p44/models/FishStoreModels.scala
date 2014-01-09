@@ -20,8 +20,10 @@ object FishStoreModels {
       Json.prettyPrint(Fish.toJsArray(shipment))
     }
   }
-  def generateFish: Future[List[Fish]] = Future { 
-    List(Fish("mackerel", 3.5))
+  def generateFish: Future[List[Fish]] = {
+    Future {
+      List(Fish("mackerel", 3.5), Fish("trout", 2.1))
+    }
   }
 
 }
