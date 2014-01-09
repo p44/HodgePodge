@@ -14,8 +14,7 @@ import play.api.cache.Cache // http://ehcache.org/
 /**
  * The fish store.  Receiving fish, unload, stack, sell, package.
  *
- * Truck of Fish --> Controller --> Unloader --> Catcher + Stacker
- * Customer --> Controller --> Cashier --> Packager
+ * Shipment of Fish --> Controller --> Unloader --> Catcher + Stacker
  *
  * This example uses the Play default thread pool with default settings.
  */
@@ -44,6 +43,7 @@ case class Fish(name: String, weight: Double)
 
 /** Controller */
 class FishStoreController extends Actor with ActorLogging {
+  
   def receive = {
     case FishStoreOne.Deliver(shipment) => {
       log.info("Delivery of this many fish: " + shipment.size)
@@ -98,7 +98,7 @@ class FishStacker extends Actor with ActorLogging {
     case FishStoreOne.Stack(fish) => {
       log.debug("Stack " + fish)
       packOnIce(fish)
-      stop()
+      context.parent ! FishStoreOne.Done
     }
     case _ => log.error("unknown case")
   }
@@ -106,7 +106,12 @@ class FishStacker extends Actor with ActorLogging {
     log.info("Packed on Ice: " + fish)
   }
   def stop() = {
-    context.parent ! FishStoreOne.Done
-    context.stop(self)
+    //context.stop(self) 
+    // the parent will stop and this child will stop as a consequence if here we get...
+    // [akka://TestSys/user/$a/$a/$b/$a] Message [akka.dispatch.sysmsg.Terminate] from Actor[akka://TestSys/user/$a/$a/$b/$a#1933714031] 
+    // to Actor[akka://TestSys/user/$a/$a/$b/$a#1933714031] was not delivered. [1] dead letters encountered. 
   }
 }
+
+// ISSUES
+// 1. 
