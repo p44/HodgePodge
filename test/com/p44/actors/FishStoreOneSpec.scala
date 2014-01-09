@@ -7,6 +7,8 @@ import akka.testkit.TestProbe
 import play.api.test._
 import play.api.test.Helpers._
 
+import com.p44.models._
+
 object FishStoreOneSpec extends Specification {
 
   //sbt > test-only com.p44.actors.FishStoreOneSpec
