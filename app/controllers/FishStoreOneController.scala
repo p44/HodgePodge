@@ -11,7 +11,7 @@ import play.api.mvc.Request
 import play.api.mvc.AnyContent
 
 /**
- * Restful requests for Fish Store One
+ * Restful services for Fish Store One
  */
 object FishStoreOneController extends Controller {
 
@@ -50,7 +50,7 @@ object FishStoreOneController extends Controller {
   }
 
   
-  /** Takes a deliver, currently just a json array of fish and creates an object to pass to the actors */
+  /** Takes a delivery, currently a json array of fish and creates an object to pass to the actors */
   def resolveDeliveryJsonToObj(request: Request[AnyContent]): Option[List[Fish]] = {
     val jsonBody: Option[JsValue] = request.body.asJson
     jsonBody.isDefined match {
