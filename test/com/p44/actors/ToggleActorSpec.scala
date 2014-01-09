@@ -56,17 +56,20 @@ object ToggleActorSpec extends Specification {
       println("lookup toggle - toggle.path.name " + toggle.path.name)
       toggle.path.name mustEqual "my_toggler2"
       
-      // actorFor deprecated but OK for local actor references and not for remote
-      system.actorFor(toggle.path) mustEqual toggle 
+      // actorFor deprecated due to inconsistencies between local actor references and remote actor references
+      val actorForRef = system.actorFor(toggle.path) 
+      actorForRef mustEqual toggle 
       
-      // actorSelection 2.2 and up, works the same for local and remote actors
-      
+      // actorSelection - 2.2 and up, works the same for local and remote actors
       val selToggler2: ActorSelection = system.actorSelection("/user/my_toggler2")
       val f: Future[Any] = selToggler2 ? Identify(None) // ask for identity
-      val identityFuture: Future[ActorRef] = f.mapTo[ActorIdentity].map(aId => aId.ref.get)
-      val selectedRef: ActorRef = Await.result(identityFuture, timeoutDefault) // don't Await in an actor
+      val identityFuture: Future[Option[ActorRef]] = f.mapTo[ActorIdentity].map(_.ref)
+      val oSelectedRef: Option[ActorRef] = Await.result(identityFuture, timeoutDefault) // Note: don't Await in an actor
+      oSelectedRef.isDefined mustEqual true
+      val selectedRef = oSelectedRef.get
+      selectedRef mustEqual actorForRef // same reference
       
-      // the ref should work
+      // the selectedRef should work
       probe.send(selectedRef, ToggleActor.question)
       val e1: String = probe.expectMsg("cold")
       e1 mustEqual "cold"
