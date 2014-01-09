@@ -1,33 +1,30 @@
 package com.p44.actors
 
+import com.p44.models._
 import akka.actor._
-import play.api.libs.concurrent.Akka // just use the play default akka for this low volume client
-import play.api.Play.current // bring the current running Application into context
 import play.api.Logger
 import scala.collection.mutable._
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{ Failure, Success }
-import play.api.cache.Cache // http://ehcache.org/
 
 /**
- * The fish store.  Receiving fish, unload, stack, sell, package.
+ * The fish store.
+ * Receiving fish, unload, stack, sell, package.
  *
  * Shipment of Fish --> Controller --> Unloader --> Catcher + Stacker
  *
  * This example uses the Play default thread pool with default settings.
  */
 object FishStoreOne {
-  
+
   val UnknownMessage = "unknown"
 
   val propsController = Props[FishStoreController]
   val propsUnloader = Props[FishUnloader]
   val propsCatcher = Props[FishCatcher]
   val propsStacker = Props[FishStacker]
-
-  //val controller = Akka.system.actorOf(propsController, name = "fishStoreController")
 
   // MESSAGES
   case object Echo
@@ -39,15 +36,13 @@ object FishStoreOne {
 
 }
 
-case class Fish(name: String, weight: Double)
-
 /** Controller */
 class FishStoreController extends Actor with ActorLogging {
-  
   def receive = {
     case FishStoreOne.Deliver(shipment) => {
       log.info("Delivery of this many fish: " + shipment.size)
-      val unloader = context.actorOf(FishStoreOne.propsUnloader) // create one unloader for each delivery
+      // create one unloader for each delivery
+      val unloader = context.actorOf(FishStoreOne.propsUnloader)
       shipment.foreach { x => unloader ! FishStoreOne.Unload(x) }
     }
     case FishStoreOne.Done => print("d")
@@ -56,6 +51,7 @@ class FishStoreController extends Actor with ActorLogging {
   }
 }
 
+/** Unload */
 class FishUnloader extends Actor with ActorLogging {
   def receive = {
     case FishStoreOne.Unload(fish) => {
@@ -64,7 +60,7 @@ class FishUnloader extends Actor with ActorLogging {
       catcher ! FishStoreOne.Catch(fish) // catcher will stop itself
       context.parent ! FishStoreOne.Done
     }
-    case FishStoreOne.Done => print("_") 
+    case FishStoreOne.Done => print("_")
     case _ => log.error("unknown case")
   }
   def stop() = {
@@ -73,13 +69,13 @@ class FishUnloader extends Actor with ActorLogging {
   }
 }
 
+/** Catch */
 class FishCatcher extends Actor with ActorLogging {
   def receive = {
     case FishStoreOne.Catch(fish) => {
       log.debug("Catch " + fish)
-      val stacker = context.actorOf(FishStoreOne.propsStacker)
-      stacker ! FishStoreOne.Stack(fish) // catcher will stop itself
-      //context.system.actorSelection(path) // actorFor is deprecated in favor of actorSelection because actor references acquired with actorFor behave differently for local and remote actors. 
+      val stacker = context.actorOf(FishStoreOne.propsStacker) // create new stacker
+      stacker ! FishStoreOne.Stack(fish)
     }
     case FishStoreOne.Done => {
       print("|")
@@ -93,6 +89,7 @@ class FishCatcher extends Actor with ActorLogging {
   }
 }
 
+/** Stack */
 class FishStacker extends Actor with ActorLogging {
   def receive = {
     case FishStoreOne.Stack(fish) => {
@@ -105,13 +102,13 @@ class FishStacker extends Actor with ActorLogging {
   def packOnIce(fish: Fish) = {
     log.info("Packed on Ice: " + fish)
   }
-  def stop() = {
-    //context.stop(self) 
-    // the parent will stop and this child will stop as a consequence if here we get...
-    // [akka://TestSys/user/$a/$a/$b/$a] Message [akka.dispatch.sysmsg.Terminate] from Actor[akka://TestSys/user/$a/$a/$b/$a#1933714031] 
-    // to Actor[akka://TestSys/user/$a/$a/$b/$a#1933714031] was not delivered. [1] dead letters encountered. 
-  }
+  // the parent will stop itself and this child will stop as a consequence 
+  // if stacker stops itself here we get...
+  // Message [akka.dispatch.sysmsg.Terminate] was not delivered. [1] dead letters encountered. 
 }
 
-// ISSUES
-// 1. 
+// ISSUES - This uses actors but doesn't do much of interest
+// 1. FishStoreOne.Deliver - The unloader is created but not stopped and not reused.  It could easily be reused
+// 2. Catch and Stack don't have any significant behavior, results only in a log.info
+// 3. It would be nice to send a delivery summary to the initiator - count and total weight.
+// 4. Handling of dead letter messages?
