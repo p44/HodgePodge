@@ -23,6 +23,7 @@ object FishStoreOneController extends Controller {
   // one reference to the controller actor
   val controllerActor = Akka.system.actorOf(FishStoreOne.propsController, name = "fishStoreOneController")
   lazy val msgDeliveryReceivedJson = """{"message": "Delivery Received"}"""
+  lazy val defaultCatchSize = 10
   
   /** route to home page */
   def viewStoreOne = Action.async { request =>
@@ -34,7 +35,7 @@ object FishStoreOneController extends Controller {
    * Provides a new load of fish as json array (simulated)
    */
   def getCatchLatest = Action.async {
-    val f: Future[String] = FishStoreModels.aBunchOfFishToJson(FishStoreModels.generateFish)
+    val f: Future[String] = FishStoreModels.aBunchOfFishToJson(FishStoreModels.generateFish(defaultCatchSize))
     f.map(s => Ok(s)) // Note: f.onComplete does not work here because it returns Unit
   }
   
