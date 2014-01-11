@@ -15,15 +15,43 @@ object Fish {
 }
 
 object FishStoreModels {
+
+  /** (name, min lbs, max lbs) */
+  val possibleFish: Seq[(String, Int, Int)] = Seq(("sea bass", 5, 10),
+    ("blue-green snapper", 4, 18),
+    ("pink snapper", 2, 18),
+    ("red snapper", 2, 18),
+    ("wahoo", 8, 30),
+    ("skipjack tuna", 4, 30))
+
+  def getRandomFish: Fish = {
+    val pf: (String, Int, Int) = getRandomPossibleFish
+    getFishFromPossibleFish(pf)
+  }
+  def getRandomPossibleFish: (String, Int, Int) = {
+    possibleFish(scala.util.Random.nextInt(possibleFish.size))
+  }
+  def getFishFromPossibleFish(pf: (String, Int, Int)): Fish = {
+    Fish(pf._1, getFishWeight(pf._2, pf._3))
+  }
+  def getFishWeight(min: Int, max: Int): Double = {
+    val lbs: Double = (min + scala.util.Random.nextInt(max - min + 1)).toDouble
+    val frac: Double = (scala.util.Random.nextInt(10)).toDouble
+    lbs + frac / 10.0
+  }
   def aBunchOfFishToJson(futureShipment: Future[List[Fish]]): Future[String] = {
     futureShipment.map { shipment =>
       Json.prettyPrint(Fish.toJsArray(shipment))
     }
   }
-  def generateFish: Future[List[Fish]] = {
-    Future {
-      List(Fish("mackerel", 3.5), Fish("trout", 2.1))
-    }
+  /** Generates a list of fish of size specified by count, returns as future */
+  def generateFish(count: Int): Future[List[Fish]] = {
+    Future { generateFishImpl(count) }
+  }
+  /** Generates a list of fish of size specified by count */
+  def generateFishImpl(count: Int): List[Fish] = {
+    val fish = for (i <- 0 until count) yield { getRandomFish }
+    fish.toList
   }
 
 }
