@@ -58,7 +58,7 @@ object ToggleActorSpec extends Specification {
       
       // actorFor deprecated due to inconsistencies between local actor references and remote actor references
       val actorForRef = system.actorFor(toggle.path) 
-      actorForRef mustEqual toggle 
+      actorForRef mustEqual toggle //Two actor references are compared equal when they have the same path and point to the same actor incarnation.
       
       // actorSelection - 2.2 and up, works the same for local and remote actors
       val selToggler2: ActorSelection = system.actorSelection("/user/my_toggler2")
