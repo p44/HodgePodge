@@ -34,23 +34,29 @@
       </div>
 
       <div class="jumbotron">
-        <h1>Catch and Deliver Fish</h1>
-        <p class="lead">It's fun.</p>
-        <!--  p><a class="btn btn-lg btn-success" href="#" role="button">Authenticate</a></p -->
-        <p><button class="btn btn-lg btn-success" ng-click="getLatestCatch()">Go Fish</button></p>
+        <!-- h1>Catch and Deliver Fish</h1 -->
+        <p class="lead">Catch and Deliver Fish.  It's fun.</p>
+        <p>
+          <button class="btn btn-lg btn-success" ng-click="getLatestCatch()">Go Fish</button>
+          <span ng-show="catchExists()"><button class="btn btn-lg btn-primary" ng-click="deliverLatestCatch()">Deliver</button>
+        </p>
       </div>
-
+      <!--  div class="row marketing">
+        <div class="col-md-12 ">
+        <p>Catch and Deliver.</p>
+        <p><button class="btn btn-lg btn-success" ng-click="getLatestCatch()">Go Fish</button></p>
+      </div -->
       <div class="row marketing">
         <div class="col-md-6 ">
-          <h4>My Catch <span ng-show="catchExists()"><button class="btn btn-lg btn-info" ng-click="deliverLatestCatch()">Deliver</button></p></span></h4> <!-- "label": "", "id":"", "appId":"", "name":"", "key":"", "secret":"", "roles":"[]" -->
+          <h4>My Catch </h4>
           <p>We caught {{latest_catch_size}} fish (top of the catch):</p>
           
           <ul>
-          <div class="fish" ng-repeat="fish in latest_catch | limitTo:-10">
-		    <li>"{{fish.name}}" weighing {{fish.pounds}} pounds </li>
-		  </div>
+            <div class="fish" ng-repeat="fish in latest_catch | limitTo:-10">
+		      <li>"{{fish.name}}" weighing {{fish.pounds}} pounds </li>
+		    </div>
 	      </ul>
-          
+	      
         </div>
         <div class="col-md-6">
           <h4>Delivery Result</h4>
