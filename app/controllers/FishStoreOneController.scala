@@ -10,6 +10,8 @@ import scala.concurrent.Future
 import play.api.mvc.Request
 import play.api.mvc.AnyContent
 
+import views._
+
 /**
  * Restful services for Fish Store One
  */
@@ -20,6 +22,12 @@ object FishStoreOneController extends Controller {
 
   // one reference to the controller actor
   val controllerActor = Akka.system.actorOf(FishStoreOne.propsController, name = "fishStoreOneController")
+  lazy val msgDeliveryReceivedJson = """{"message": "Delivery Received"}"""
+  
+  /** route to home page */
+  def viewStoreOne = Action.async { request =>
+	Future { Ok(views.html.fishstoreone.render) }
+  }
 
   /**
    * GET /store_one/catch/latest
@@ -43,7 +51,7 @@ object FishStoreOneController extends Controller {
         case false => BadRequest("Please check your request for content type and expected json.")
         case _ => {
           controllerActor ! FishStoreOne.Deliver(delivery.get)
-          Ok("""{"message": "Delivery Received}""")
+          Ok(msgDeliveryReceivedJson)
         }
       }
     }
