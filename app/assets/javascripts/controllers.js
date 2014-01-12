@@ -28,11 +28,13 @@ controller('FishStoreOneCtrl',function ($scope, $http, $location, $timeout) {
 		     $scope.latest_catch = data;
 		     $scope.latest_catch_raw = data;
 		     $scope.latest_catch_size = data.length;
+		     $scope.delivery_result = $scope.delivery_result_none;
 	   }).error(function(data, status, headers, config) {
 		     console.log('GET ' + url + ' ERROR ' + status)
 		     $scope.latest_catch = $scope.latest_catch_empty;
 		     $scope.latest_catch_raw = $scope.latest_catch_empty;
 		     $scope.latest_catch_size = 0;
+		     $scope.delivery_result = $scope.delivery_result_none;
 	   });
 	}
 	$scope.deliverLatestCatch = function() {
