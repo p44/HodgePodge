@@ -7,14 +7,17 @@ controller('FishStoreOneCtrl',function ($scope, $http, $location, $timeout) {
 	$scope.latest_catch = $scope.latest_catch_empty; // this will be modified with $$hashkey
 	$scope.latest_catch_raw = $scope.latest_catch_empty;
 	$scope.latest_catch_size = 0;
-	$scope.delivery_result_none = JSON.parse('{"message": "None"}');
-	$scope.delivery_result_pending = JSON.parse('{"message": "..."}');
-	$scope.delivery_result_error = JSON.parse('{"message": "Error"}');
+	$scope.delivery_result_none = JSON.parse('{"message": "", "time": ""}');
+	$scope.delivery_result_pending = JSON.parse('{"message": "...", "time": "..."}');
+	$scope.delivery_result_error = JSON.parse('{"message": "Error", "time": ""}');
 	$scope.delivery_result = $scope.delivery_result_none;
 	$scope.callback_msgs = [];
 	
 	$scope.catchExists = function() {
 		return $scope.latest_catch_size > 0;
+	}
+	$scope.deliveryResultExists = function() {
+		return ($scope.delivery_result.message != "" && $scope.delivery_result.message != "...");
 	}
 	$scope.getLatestCatch = function() {
        var url = '/fish_store_one/catch/latest';

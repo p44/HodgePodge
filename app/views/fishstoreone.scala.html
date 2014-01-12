@@ -60,7 +60,12 @@
         </div>
         <div class="col-md-6">
           <h4>Delivery Result</h4>
-          <p>Last delivery status: {{delivery_result.message}}</p>
+          <p>Last delivery status:
+            <ul ng-show="deliveryResultExists()">
+               <li>{{delivery_result.message}}</li>
+               <li>at {{delivery_result.time}}</li>
+            </ul>
+          </p>
         </div>
       </div>
 
