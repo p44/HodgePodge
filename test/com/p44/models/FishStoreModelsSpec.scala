@@ -16,5 +16,12 @@ object FishStoreModelsSpec extends Specification {
       println("generateFishImpl(1000).size: " + fish2.size)
       fish2.size mustEqual 1000
     }
+    
+    "makeMessageTimeJsonImpl" in {
+      val now = System.currentTimeMillis()
+      val mt = FishStoreModels.makeMessageTimeJsonImpl("Hello", now)
+      println(mt)
+      mt.contains("Hello") mustEqual true
+    }
   }
 }

@@ -14,6 +14,13 @@ object Fish {
   def toJsArray(objs: List[Fish]): JsArray = JsArray(objs.map(Json.toJson(_)).toSeq)
 }
 
+case class MessageTime(message: String, time: String)
+object MessageTime {
+  implicit val jsonWriter = Json.writes[MessageTime] // Json.toJson(obj): JsValue
+  implicit val jsonReader = Json.reads[MessageTime] // Json.fromJson[T](jsval): JsResult[T] .asOpt Option[T]
+  def toJsArray(objs: List[MessageTime]): JsArray = JsArray(objs.map(Json.toJson(_)).toSeq)
+}
+
 object FishStoreModels {
 
   /** (name, min lbs, max lbs) */
@@ -52,6 +59,23 @@ object FishStoreModels {
   def generateFishImpl(count: Int): List[Fish] = {
     val fish = for (i <- 0 until count) yield { getRandomFish }
     fish.toList
+  }
+  
+  
+  import org.joda.time.DateTime
+  import org.joda.time.DateTimeZone
+  import org.joda.time.format._
+  
+  val DATE_FORMATTER_USA: DateTimeFormatter = DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss")
+ 
+  def makeMessageTimeJson(msg: String, ts: Long): Future[String] = {
+    Future { makeMessageTimeJsonImpl(msg, ts) }
+  }
+  def makeMessageTimeJsonImpl(msg: String, ts: Long): String = {
+    val dt = new DateTime(ts)
+    val formattedTimestamp: String = DATE_FORMATTER_USA.print(dt)
+    val mt = MessageTime(msg, formattedTimestamp)
+    Json.prettyPrint(Json.toJson(mt))
   }
 
 }
