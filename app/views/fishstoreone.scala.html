@@ -48,7 +48,7 @@
       </div -->
       <div class="row marketing">
         <div class="col-md-6 ">
-          <h4>My Catch </h4>
+          <h4>My Catch <span ng-show="catchExists()" class="glyphicon glyphicon-check text-success"></span></h4>
           <p>We caught {{latest_catch_size}} fish (top of the catch):</p>
           
           <ul>
@@ -59,7 +59,7 @@
 	      
         </div>
         <div class="col-md-6">
-          <h4>Delivery Result</h4>
+          <h4>Delivery Result <span ng-show="deliveryResultExists()" class="glyphicon glyphicon-check text-primary"></span></h4>
           <p>Last delivery status:
             <ul ng-show="deliveryResultExists()">
                <li>{{delivery_result.message}}</li>
