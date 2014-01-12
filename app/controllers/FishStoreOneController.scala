@@ -49,7 +49,7 @@ object FishStoreOneController extends Controller {
     }
     fDelivery.flatMap { delivery: Option[List[Fish]] =>
       delivery.isDefined match {
-        case false => Future.successful(BadRequest("Please check your request for content type and expected json."))
+        case false => Future.successful(BadRequest("Please check your request for content type of json as well as the json format."))
         case _ => {
           controllerActor ! FishStoreOne.Deliver(delivery.get)
           val mt: Future[String] = FishStoreModels.makeMessageTimeJson("Delivery Received", System.currentTimeMillis())
