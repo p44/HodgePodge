@@ -47,12 +47,13 @@ object FishStoreOneController extends Controller {
     val fDelivery = Future[Option[List[Fish]]] {
       resolveDeliveryJsonToObj(request)
     }
-    fDelivery.map { delivery: Option[List[Fish]] =>
+    fDelivery.flatMap { delivery: Option[List[Fish]] =>
       delivery.isDefined match {
-        case false => BadRequest("Please check your request for content type and expected json.")
+        case false => Future.successful(BadRequest("Please check your request for content type and expected json."))
         case _ => {
           controllerActor ! FishStoreOne.Deliver(delivery.get)
-          Ok(msgDeliveryReceivedJson)
+          val mt: Future[String] = FishStoreModels.makeMessageTimeJson("Delivery Received", System.currentTimeMillis())
+          mt.map(s => Ok(s))
         }
       }
     }
@@ -69,5 +70,6 @@ object FishStoreOneController extends Controller {
       }
     }
   }
+  
 
 }
