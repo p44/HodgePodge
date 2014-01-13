@@ -21,6 +21,13 @@ object MessageTime {
   def toJsArray(objs: List[MessageTime]): JsArray = JsArray(objs.map(Json.toJson(_)).toSeq)
 }
 
+case class DroppedFish(fish: Fish, exclamation: String)
+object DroppedFish {
+  implicit val jsonWriter = Json.writes[DroppedFish] // Json.toJson(obj): JsValue
+  implicit val jsonReader = Json.reads[DroppedFish] // Json.fromJson[T](jsval): JsResult[T] .asOpt Option[T]
+  def toJsArray(objs: List[DroppedFish]): JsArray = JsArray(objs.map(Json.toJson(_)).toSeq)
+}
+
 object FishStoreModels {
 
   /** (name, min lbs, max lbs) */
