@@ -5,3 +5,8 @@ angular.module('fishstoreOne.services', []).
 service('blankModel', function () {
    console.log('fishstoreOne.services.blankModel')
 });
+
+angular.module('fishstoreTwo.services', []).
+service('blankModel', function () {
+   console.log('fishstoreTwo.services.blankModel')
+});
