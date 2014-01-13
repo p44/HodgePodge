@@ -1,9 +1,11 @@
 package com.p44.actors.store.one
 
-import com.p44.models._
-import akka.actor._
-import scala.collection.mutable._
-import scala.concurrent.duration._
+import com.p44.models.Fish
+
+import akka.actor.Actor
+import akka.actor.ActorLogging
+import akka.actor.Props
+import akka.actor.actorRef2Scala
 
 /**
  * The fish store.
@@ -36,8 +38,8 @@ object FishStoreOne {
 class FishStoreController extends Actor with ActorLogging {
   def receive = {
     case FishStoreOne.Deliver(shipment) => {
-      log.info("Delivery of this many fish: " + shipment.size)
-      // create one unloader for each delivery
+      log.info("New delivery of this many fish: " + shipment.size)
+      // create one new unloader for each delivery
       val unloader = context.actorOf(FishStoreOne.propsUnloader)
       shipment.foreach { x => unloader ! FishStoreOne.Unload(x) }
     }
