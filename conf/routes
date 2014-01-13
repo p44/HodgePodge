@@ -2,13 +2,14 @@
 GET     /						controllers.SimpleController.index
 GET     /hello/:name			controllers.SimpleController.hello(name: String)
 
-GET		/fish_store_one						controllers.FishStoreOneController.viewStoreOne
+GET     /fish_store_one						controllers.FishStoreOneController.viewStoreOne
 GET     /fish_store_one/catch/latest		controllers.FishStoreOneController.getCatchLatest
 POST    /fish_store_one/delivery			controllers.FishStoreOneController.postDelivery
 
-GET		/fish_store_two						controllers.FishStoreTwoController.viewStoreTwo
+GET     /fish_store_two						controllers.FishStoreTwoController.viewStoreTwo
 GET     /fish_store_two/catch/latest		controllers.FishStoreTwoController.getCatchLatest
 POST    /fish_store_two/delivery			controllers.FishStoreTwoController.postDelivery
+GET     /feed/fish_store_two/delivery		controllers.FishStoreTwoController.fishStoreTwoDeliveryFeed
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
