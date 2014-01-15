@@ -28,6 +28,13 @@ object DroppedFish {
   def toJsArray(objs: List[DroppedFish]): JsArray = JsArray(objs.map(Json.toJson(_)).toSeq)
 }
 
+case class DeliveryReceipt(id: Long, fishCount: Int, totalWeight: Double, payment: Double, time: String, message: String)
+object DeliveryReceipt {
+  implicit val jsonWriter = Json.writes[DeliveryReceipt] // Json.toJson(obj): JsValue
+  implicit val jsonReader = Json.reads[DeliveryReceipt] // Json.fromJson[T](jsval): JsResult[T] .asOpt Option[T]
+  def toJsArray(objs: List[DeliveryReceipt]): JsArray = JsArray(objs.map(Json.toJson(_)).toSeq)
+}
+
 object FishStoreModels {
 
   /** (name, min lbs, max lbs) */
@@ -79,10 +86,10 @@ object FishStoreModels {
     Future { makeMessageTimeJsonImpl(msg, ts) }
   }
   def makeMessageTimeJsonImpl(msg: String, ts: Long): String = {
-    val dt = new DateTime(ts)
-    val formattedTimestamp: String = DATE_FORMATTER_USA.print(dt)
-    val mt = MessageTime(msg, formattedTimestamp)
+    val mt = MessageTime(msg, formatTimstampMillis(ts, DATE_FORMATTER_USA))
     Json.prettyPrint(Json.toJson(mt))
   }
+  
+  def formatTimstampMillis(ts: Long, formatter: DateTimeFormatter): String = { formatter.print(new DateTime(ts)) }
 
 }
