@@ -3,11 +3,13 @@ package controllers
 import views._
 import com.p44.broadcast.FishStoreBroadcaster
 
-
+import akka.pattern.ask
+import akka.util.Timeout
 import play.api.Play.current
 import play.api.mvc.{ Action, Controller }
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.libs.concurrent.Akka
 import play.api.libs.json._
 import play.api.libs.iteratee.{ Concurrent, Enumeratee, Enumerator }
@@ -22,11 +24,12 @@ import play.api.Logger
 object FishStoreTwoController extends Controller {
   
   import com.p44.actors.store.two.FishStoreTwo
-  import com.p44.models.{FishStoreModels, Fish}
+  import com.p44.models.{ DeliveryReceipt, Fish, FishStoreModels }
 
   // one reference to the controller actor
   val controllerActor = Akka.system.actorOf(FishStoreTwo.propsController, name = "fishStoreTwoController")
   lazy val defaultCatchSize = 100
+  implicit val timeout = Timeout(6.seconds) // used for ask ?
   
   /** route to home page */
   def viewStoreTwo = Action.async { request =>
@@ -54,9 +57,12 @@ object FishStoreTwoController extends Controller {
       delivery.isDefined match {
         case false => Future.successful(BadRequest("Please check your request for content type of json as well as the json format."))
         case _ => {
-          controllerActor ! FishStoreTwo.Deliver(delivery.get)
-          val mt: Future[String] = FishStoreModels.makeMessageTimeJson("Delivery Received", System.currentTimeMillis())
-          mt.map(s => Ok(s))
+          //controllerActor ! FishStoreTwo.Deliver(delivery.get)
+          val f: Future[Any] = controllerActor ? FishStoreTwo.Deliver(delivery.get) // deliver with ask
+          val fdr: Future[DeliveryReceipt] = f.mapTo[DeliveryReceipt]
+          fdr.map { dr: DeliveryReceipt =>
+            Ok(Json.prettyPrint(Json.toJson(dr)))
+          }
         }
       }
     }
