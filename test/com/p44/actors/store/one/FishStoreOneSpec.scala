@@ -27,6 +27,8 @@ object FishStoreOneSpec extends Specification {
         
         p.send(controller, FishStoreOne.Deliver(delivery))
         Thread.sleep(1000L)
+        system.shutdown
+        system.awaitTermination
         true
       }
     }
