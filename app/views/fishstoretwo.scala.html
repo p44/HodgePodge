@@ -47,7 +47,7 @@
         <p><button class="btn btn-lg btn-success" ng-click="getLatestCatch()">Go Fish</button></p>
       </div -->
       <div class="row marketing">
-        <div class="col-md-6 ">
+        <div class="col-md-6">
           <h4>My Catch <span ng-show="catchExists()" class="glyphicon glyphicon-check text-success"></span></h4>
           <p>We caught {{latest_catch_size}} fish (top of the catch):</p>
           
@@ -57,15 +57,37 @@
 		    </div>
 	      </ul>
 	      
-        </div>
-        <div class="col-md-6">
-          <h4>Delivery Result <span ng-show="deliveryResultExists()" class="glyphicon glyphicon-check text-primary"></span></h4>
-          <p>Last delivery status:
+	      <br/>
+	      
+	      <h4>Delivery Result <span ng-show="deliveryResultExists()" class="glyphicon glyphicon-check text-primary"></span></h4>
+          <p>Last delivery:
             <ul ng-show="deliveryResultExists()">
                <li>{{delivery_result.message}}</li>
-               <li>at {{delivery_result.time}}</li>
+               <li>Time: {{delivery_result.time}}</li>  
+               <li>Id: {{delivery_result.id}}</li>
+               <li>Count: {{delivery_result.fishCount}}</li>
+               <li>Total Pounds: {{delivery_result.totalWeight}}</li>
+               <li>Payment: ${{delivery_result.payment}}</li>
             </ul>
           </p>
+          
+          <br/>
+	      
+        </div>
+        <div class="col-md-6">
+          <h4>Watch The Uloading <span class="glyphicon glyphicon-eye-open text-primary"></span></h4>
+          <p>Dropped Fish appear below...</p>
+          <ul>
+            <div class="dropped" ng-repeat="dropped in delivery_feed_msgs | limitTo:-10">
+		      <li><span class="text-primary">{{dropped.fish.name}}({{dropped.fish.pounds}})</span> <span class="text-warning">{{dropped.exclamation}}</span> </li>
+		    </div>
+	      </ul>
+        </div>
+      </div>
+      
+      <div class="row marketing">
+        <div class="col-sm-12 col-md-6 col-md-offset-6">
+          
         </div>
       </div>
 
