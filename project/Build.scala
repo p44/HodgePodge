@@ -10,6 +10,7 @@ object ApplicationBuild extends Build {
   val appDependencies = Seq(
       "com.typesafe.akka" %% "akka-testkit" % "2.2.1" % "test",
       "joda-time" % "joda-time" % "2.3",
+      "org.reactivemongo" %% "reactivemongo" % "0.10.0",
       cache
   )
  
