@@ -35,7 +35,14 @@ object DeliveryReceipt {
   def toJsArray(objs: List[DeliveryReceipt]): JsArray = JsArray(objs.map(Json.toJson(_)).toSeq)
 }
 
+import com.typesafe.config.ConfigFactory
+
 object FishStoreModels {
+  
+  val CONF = ConfigFactory.load
+  
+  val FISHSTORE_TWO_DB_NAME = CONF.getString("store.two.mongodb.database").trim
+  val FISHSTORE_TWO_DB_HOSTS: List[String] = List(CONF.getString("store.two.mongodb.hosts").trim)
 
   /** (name, min lbs, max lbs) */
   val possibleFish: Seq[(String, Int, Int)] = Seq(("sea bass", 5, 10),
