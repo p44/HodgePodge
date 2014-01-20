@@ -1,14 +1,8 @@
 package com.p44.actors
 
-import akka.actor._
-import play.api.libs.concurrent.Akka // just use the play default akka for this low volume client
-import play.api.Play.current // bring the current running Application into context
-import play.api.Logger
-import scala.collection.mutable._
-import scala.concurrent.Future
-import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{ Failure, Success }
+import akka.actor.Actor
+import akka.actor.Props
+import akka.actor.actorRef2Scala
 
 object ToggleActor {
 
