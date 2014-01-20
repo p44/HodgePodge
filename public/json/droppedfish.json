@@ -1,0 +1,21 @@
+{
+ "name": "all",
+ "children": [
+  {
+   "name": "fish",
+   "children": [
+    {
+     "name": "dropped",
+     "children": [
+      {"name": "sea bass", "size": 300},
+      {"name": "blue-green snapper", "size": 561},
+      {"name": "red snapper", "size": 714},
+      {"name": "wahoo", "size": 743},
+      {"name": "skipjack tuna", "size": 143}
+     ]
+    }
+   ]
+  }
+ ]
+}
+  
