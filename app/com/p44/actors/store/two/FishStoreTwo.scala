@@ -13,6 +13,7 @@ import play.api.libs.json._
 import scala.concurrent.duration._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{ Failure, Success }
 
 /**
  * Changes and additions from One:
@@ -39,9 +40,9 @@ object FishStoreTwo {
   case object Done
   case class Deliver(shipment: List[Fish])
   case class GenerateReceipt(ts: Long, shipment: List[Fish]) // New functionality, returns DeliveryReceipt
-  case class Unload(fish: Fish)
-  case class Catch(fish: Fish) // catch and hand off to an available stacker
-  case class Stack(fish: Fish) // possibly considers containers being full
+  case class Unload(ts: Long, fish: Fish)
+  case class Catch(ts: Long, fish: Fish) // catch and hand off to an available stacker
+  case class Stack(ts: Long, fish: Fish) // possibly considers containers being full
   case class AnnounceDroppedFish(droppedFish: DroppedFish)
 
   lazy val possibleExclamations = Seq("Darn it!", "I thought I had it!", "No no no!", "Sippery one!", "I wasn't looking",
@@ -69,11 +70,10 @@ class FishStoreController extends Actor with ActorLogging {
     case FishStoreTwo.Deliver(shipment) => {
       val now = System.currentTimeMillis
       log.info("New delivery of this many fish: " + shipment.size)
-      shipment.foreach { x => unloaderRef ! FishStoreTwo.Unload(x) }
+      shipment.foreach { x => unloaderRef ! FishStoreTwo.Unload(now, x) }
       // ask the calculator for a receipt, send the future back to sender
       (calculatorRef ? FishStoreTwo.GenerateReceipt(now, shipment)).map { a: Any => a } pipeTo sender
-      // alternative local calc in the actor
-      //sender ! FishStoreTwo.calcReceipt(now, shipment)
+      //sender ! FishStoreTwo.calcReceipt(now, shipment) // alternative local calc in the actor
     }
     case FishStoreTwo.Done => print("d")
     case FishStoreTwo.Echo => sender ! "Echo"
@@ -102,21 +102,17 @@ class FishUnloader extends Actor with ActorLogging {
   val commentatorRef = context.actorOf(FishStoreTwo.propsCommentator)
 
   def receive = {
-    case FishStoreTwo.Unload(fish) => {
+    case FishStoreTwo.Unload(ts, fish) => {
       log.debug("Unloaded " + fish)
       val catcher = context.actorOf(FishStoreTwo.propsCatcher)
-      catcher ! FishStoreTwo.Catch(fish) // catcher will stop itself
+      catcher ! FishStoreTwo.Catch(ts, fish) // catcher will stop itself
       context.parent ! FishStoreTwo.Done
     }
     case FishStoreTwo.AnnounceDroppedFish(droppedFish) => {
       commentatorRef ! FishStoreTwo.AnnounceDroppedFish(droppedFish)
     }
-    case FishStoreTwo.Done => print("_")
+    case FishStoreTwo.Done => print("u")
     case _ => log.error("unknown case")
-  }
-  def stop() = {
-    context.parent ! FishStoreTwo.Done
-    context.stop(self)
   }
 }
 
@@ -126,15 +122,15 @@ class FishCatcher extends Actor with ActorLogging {
   val stacker = context.actorOf(FishStoreTwo.propsStacker) // create new stacker
 
   def goodhands: Receive = {
-    case FishStoreTwo.Catch(fish) => {
+    case FishStoreTwo.Catch(ts, fish) => {
       val f: Option[Fish] = grabFish(fish, 0.15) // Chance of dropped fish
       f.isDefined match {
         case false => { // dropped the fish
           context.parent ! FishStoreTwo.AnnounceDroppedFish(DroppedFish(fish, exclaim))
           context.become(butterfingers) // change to butterfingers state
-          self ! FishStoreTwo.Catch(fish) // pick up dropped fish (chance of drop same as catch)
+          self ! FishStoreTwo.Catch(ts, fish) // pick up dropped fish (chance of drop same as catch)
         }
-        case _ => { stacker ! FishStoreTwo.Stack(fish) }
+        case _ => { stacker ! FishStoreTwo.Stack(ts, fish) }
       }
     }
     case FishStoreTwo.Done => {
@@ -144,15 +140,15 @@ class FishCatcher extends Actor with ActorLogging {
   }
 
   def butterfingers: Receive = {
-    case FishStoreTwo.Catch(fish) => {
+    case FishStoreTwo.Catch(ts, fish) => {
       val f: Option[Fish] = grabFish(fish, 0.20)
       f.isDefined match {
         case false => { // dropped the fish
           context.parent ! FishStoreTwo.AnnounceDroppedFish(DroppedFish(fish, exclaim))
-          self ! FishStoreTwo.Catch(fish) // pick up dropped fish (chance of drop same as catch)
+          self ! FishStoreTwo.Catch(ts, fish) // pick up dropped fish (chance of drop same as catch)
         }
         case _ => {
-          stacker ! FishStoreTwo.Stack(fish)
+          stacker ! FishStoreTwo.Stack(ts, fish)
           context.become(goodhands) // change to butterfingers state
         }
       }
@@ -189,15 +185,27 @@ class FishCatcher extends Actor with ActorLogging {
 /** Stack */
 class FishStacker extends Actor with ActorLogging {
   def receive = {
-    case FishStoreTwo.Stack(fish) => {
+    case FishStoreTwo.Stack(ts, fish) => {
       log.debug("Stack " + fish)
-      packOnIce(fish)
+      packOnIce(ts, fish)
       context.parent ! FishStoreTwo.Done
     }
-    case _ => log.error("unknown case")
   }
-  def packOnIce(fish: Fish) = {
-    log.info("Packed on Ice: " + fish)
+  
+  import com.p44.db._ 
+  
+  def packOnIce(dId: Long, fish: Fish) = {
+    val fd = com.p44.db.store.two.FishDelivered(dId, fish.name, fish.pounds, System.currentTimeMillis)
+    val futureInsert = com.p44.db.store.two.FishDeliveredDbHelper.insertOneAsFuture(fd)
+    futureInsert.onComplete {
+      case Failure(e) => log.error("ERROR inserting deliverd fish: " + e.getMessage)
+      case Success(le) => {
+        le.ok match {
+          case false => log.error("ERROR: Not Packed on Ice: " + fish)
+          case _ => log.info("Packed on Ice: " + fish)
+        }
+      }
+    }
   }
 }
 
