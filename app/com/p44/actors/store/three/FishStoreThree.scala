@@ -3,6 +3,7 @@ package com.p44.actors.store.three
 import com.p44.models._
 
 import akka.actor.Actor
+import akka.actor.ActorRef
 import akka.actor.ActorLogging
 import akka.actor.Props
 import akka.actor.actorRef2Scala
@@ -64,9 +65,22 @@ class FishStoreController extends Actor with ActorLogging {
       val now = System.currentTimeMillis
       log.info("New delivery of this many fish: " + shipment.size)
       shipment.foreach { x => unloaderRef ! FishStoreThree.Unload(now, x) }
-      // ask the calculator for a receipt, send the future back to sender
-      (calculatorRef ? FishStoreThree.GenerateReceipt(now, shipment)).map { a: Any => a } pipeTo sender
-      //sender ! FishStoreThree.calcReceipt(now, shipment) // alternative local calc in the actor
+      
+      // In Store two we used pipe to, but the sender uses future.map which
+      // val futureRecepit = (calculatorRef ? FishStoreTwo.GenerateReceipt(now, shipment))
+      // futureRecepit pipeTo sender 
+      
+      val mysender: ActorRef = sender // final def sender(): ActorRef
+      val futureRecepit = (calculatorRef.ask(FishStoreThree.GenerateReceipt(now, shipment)))
+      // Another option resolve errors here by logging and use Option  
+      futureRecepit.onComplete {
+        case Success(r) => mysender ! Some(r)
+        case Failure(e) => {
+          log.error("calculatorRef ? FishStoreThree.GenerateReceipt ERROR: " +  e.getMessage)
+          mysender ! None
+        }
+      } // NOTE: for good fun switch mysender with sender above
+      
     }
     case FishStoreThree.Done => print("u")
     case FishStoreThree.Echo => sender ! "Echo"
