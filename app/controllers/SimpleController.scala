@@ -14,14 +14,16 @@ object SimpleController extends Controller {
   lazy val homeMsg: String = "This is Hodge Podge"
   lazy val helloMsg: String = "Hello There" 
 
-  def index = Action {
-	Ok(homeMsg)
+  def index = Action { // request => resopnse
+	Ok(homeMsg) // 200
   }
   
-  def hello(name: String) = Action.async {
+  def hello(name: String) = Action.async { // downstream callback for the future
 	Future {
 	  Ok(helloMsg + ", " + name + ". " + homeMsg)
 	}
   }
+  
+  // Play allows the return of a Future Result
 
 }
