@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>The Fish Store (Three)</title>
+
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" media="screen" href='@routes.Assets.at("stylesheets/main.min.css")'>
+   
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body ng-app="fishstoreThree">
+  <div ng-controller="FishStoreThreeCtrl">
+    <div class="container">
+      <div class="header">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="@routes.FishStoreOneController.viewStoreOne">One</a></li>
+          <li><a href="@routes.FishStoreTwoController.viewStoreTwo">Two</a></li>
+          <li class="active"><a href="@routes.FishStoreThreeController.viewStoreThree">Three</a></li>
+        </ul>
+        <h3 class="text-muted">Fish Store Three</h3>
+      </div>
+
+      <div class="jumbotron">
+        <!-- h1>Catch and Deliver Fish</h1 -->
+        <p class="lead">Catch and Deliver Fish.  It's fun.</p>
+        <p><input type="number" name="fishcatchcountrequested" ng-model="fish_catch_count_requested" min="0" max="2500" required></p>
+        <p>
+          <button class="btn btn-lg btn-success" ng-click="getLatestCatch()">Go Fish</button>
+          <span ng-show="catchExists()"><button class="btn btn-lg btn-primary" ng-click="deliverLatestCatch()">Deliver</button>
+        </p>
+      </div>
+      <!--  div class="row marketing">
+        <div class="col-md-12 ">
+        <p>Catch and Deliver.</p>
+        <p><button class="btn btn-lg btn-success" ng-click="getLatestCatch()">Go Fish</button></p>
+      </div -->
+      <div class="row marketing">
+        <div class="col-md-6">
+          <h4>My Catch <span ng-show="catchExists()" class="glyphicon glyphicon-check text-success"></span></h4>
+          <p>We caught {{latest_catch_size}} fish (top of the catch):</p>
+          
+          <ul>
+            <div class="fish" ng-repeat="fish in latest_catch | limitTo:-10">
+		      <li>"{{fish.name}}" weighing {{fish.pounds}} pounds </li>
+		    </div>
+	      </ul>
+	      
+	      <br/>
+	      
+	      <h4>Delivery Result <span ng-show="deliveryResultExists()" class="glyphicon glyphicon-check text-primary"></span></h4>
+          <p>Last delivery:
+            <ul ng-show="deliveryResultExists()">
+               <li>{{delivery_result.message}}</li>
+               <li>Time: {{delivery_result.time}}</li>  
+               <li>Id: {{delivery_result.id}}</li>
+               <li>Count: {{delivery_result.fishCount}}</li>
+               <li>Total Pounds: {{delivery_result.totalWeight}}</li>
+               <li>Payment: ${{delivery_result.payment}}</li>
+            </ul>
+          </p>
+          
+          <br/>
+	      
+        </div>
+        <div class="col-md-6">
+          <h4>Watch The Uloading <span class="glyphicon glyphicon-eye-open text-primary"></span></h4>
+          <p>Dropped Fish appear below...</p>
+          <ul>
+            <div class="dropped" ng-repeat="dropped in delivery_feed_msgs | limitTo:-10">
+		      <li><span class="text-primary">{{dropped.fish.name}}({{dropped.fish.pounds}})</span> <span class="text-warning">{{dropped.exclamation}}</span> </li>
+		    </div>
+	      </ul>
+        </div>
+      </div>
+      
+      <div class="row marketing">
+        <div class="col-sm-12 col-md-6 col-md-offset-6">
+          
+        </div>
+      </div>
+
+      <div class="footer">
+        <p><a href="https://github.com/p44/HodgePodge" target"_blank">GitHub p44/HodgePodge</a></p>
+      </div>
+
+    </div> <!-- /container -->
+    </div> <!-- ng-controller -->
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.5/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.5/angular-route.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    <script type='text/javascript' src='@routes.Assets.at("javascripts/app.min.js")'></script>
+	<script type='text/javascript' src='@routes.Assets.at("javascripts/services.js")'></script>
+	<script type='text/javascript' src='@routes.Assets.at("javascripts/controllers.js")'></script>
+  </body>
+</html>
