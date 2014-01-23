@@ -75,7 +75,7 @@ class FishStoreController extends Actor with ActorLogging {
       (calculatorRef ? FishStoreTwo.GenerateReceipt(now, shipment)).map { a: Any => a } pipeTo sender
       //sender ! FishStoreTwo.calcReceipt(now, shipment) // alternative local calc in the actor
     }
-    case FishStoreTwo.Done => print("d")
+    case FishStoreTwo.Done => print("u")
     case FishStoreTwo.Echo => sender ! "Echo"
     case _ => sender ! FishStoreTwo.UnknownMessage
   }
@@ -111,7 +111,7 @@ class FishUnloader extends Actor with ActorLogging {
     case FishStoreTwo.AnnounceDroppedFish(droppedFish) => {
       commentatorRef ! FishStoreTwo.AnnounceDroppedFish(droppedFish)
     }
-    case FishStoreTwo.Done => print("u")
+    case FishStoreTwo.Done => print("c")
     case _ => log.error("unknown case")
   }
 }
@@ -134,7 +134,7 @@ class FishCatcher extends Actor with ActorLogging {
       }
     }
     case FishStoreTwo.Done => {
-      print("c")
+      print("s")
       stop()
     }
   }
@@ -219,5 +219,3 @@ class FishCommentator extends Actor with ActorLogging {
   }
 }
 
-// TODO
-// 1.  The stacker still only does a println, lets have it persist

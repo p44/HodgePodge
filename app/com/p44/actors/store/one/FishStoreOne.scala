@@ -43,7 +43,7 @@ class FishStoreController extends Actor with ActorLogging {
       val unloader = context.actorOf(FishStoreOne.propsUnloader)
       shipment.foreach { x => unloader ! FishStoreOne.Unload(x) }
     }
-    case FishStoreOne.Done => print("d")
+    case FishStoreOne.Done => print("u")
     case FishStoreOne.Echo => sender ! "Echo"
     case _ => sender ! FishStoreOne.UnknownMessage
   }
@@ -58,7 +58,7 @@ class FishUnloader extends Actor with ActorLogging {
       catcher ! FishStoreOne.Catch(fish) // catcher will stop itself
       context.parent ! FishStoreOne.Done
     }
-    case FishStoreOne.Done => print("_")
+    case FishStoreOne.Done => print("c")
     case _ => log.error("unknown case")
   }
   def stop() = {
@@ -76,7 +76,7 @@ class FishCatcher extends Actor with ActorLogging {
       stacker ! FishStoreOne.Stack(fish)
     }
     case FishStoreOne.Done => {
-      print("|")
+      print("s")
       stop()
     }
     case _ => log.error("unknown case")
