@@ -7,9 +7,15 @@ GET     /fish_store_one/catch/latest		controllers.FishStoreOneController.getCatc
 POST    /fish_store_one/delivery			controllers.FishStoreOneController.postDelivery
 
 GET     /fish_store_two						controllers.FishStoreTwoController.viewStoreTwo
+GET     /fish_store_two/watch				controllers.FishStoreTwoController.viewStoreTwoWatch
 GET     /fish_store_two/catch/latest		controllers.FishStoreTwoController.getCatchLatest
 POST    /fish_store_two/delivery			controllers.FishStoreTwoController.postDelivery
 GET     /feed/fish_store_two/delivery		controllers.FishStoreTwoController.fishStoreTwoDeliveryFeed
+
+GET     /fish_store_three					controllers.FishStoreThreeController.viewStoreThree
+GET     /fish_store_three/catch/latest/:i	controllers.FishStoreThreeController.getCatchLatest(i: Int)
+POST    /fish_store_three/delivery			controllers.FishStoreThreeController.postDelivery
+GET     /feed/fish_store_three/delivery		controllers.FishStoreThreeController.fishStoreThreeDeliveryFeed
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
