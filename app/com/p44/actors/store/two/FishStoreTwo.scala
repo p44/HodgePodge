@@ -64,16 +64,20 @@ class FishStoreController extends Actor with ActorLogging {
   val unloaderRef = context.actorOf(FishStoreTwo.propsUnloader)
   val calculatorRef = context.actorOf(FishStoreTwo.propsDeliveryCalculator)
 
-  implicit val timeout = Timeout(5.seconds) // used for ask ?
+  implicit val timeout = Timeout(5.seconds) // used for ask (?)
 
   def receive = {
     case FishStoreTwo.Deliver(shipment) => {
       val now = System.currentTimeMillis
       log.info("New delivery of this many fish: " + shipment.size)
       shipment.foreach { x => unloaderRef ! FishStoreTwo.Unload(now, x) }
+      
       // ask the calculator for a receipt, send the future back to sender
-      (calculatorRef ? FishStoreTwo.GenerateReceipt(now, shipment)).map { a: Any => a } pipeTo sender
-      //sender ! FishStoreTwo.calcReceipt(now, shipment) // alternative local calc in the actor
+      val futureRecepit = (calculatorRef ? FishStoreTwo.GenerateReceipt(now, shipment))
+      futureRecepit pipeTo sender // sends a future receipt to sender as Future[Any]
+      
+      // An alternate implementation: local calc in the actor
+      //sender ! FishStoreTwo.calcReceipt(now, shipment) 
     }
     case FishStoreTwo.Done => print("u")
     case FishStoreTwo.Echo => sender ! "Echo"
@@ -85,7 +89,7 @@ class FishStoreController extends Actor with ActorLogging {
 class FishDeliveryCalculator extends Actor with ActorLogging {
   def receive = {
     case FishStoreTwo.GenerateReceipt(ts, shipment) => {
-      val dr = FishStoreTwo.calcReceipt(ts, shipment)
+      val dr: DeliveryReceipt = FishStoreTwo.calcReceipt(ts, shipment)
       log.info("GenerateReceipt: " + dr)
       sender ! dr // send it back or we timeout
     }
