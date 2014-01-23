@@ -19,7 +19,7 @@ object FishStoreOne {
 
   val UnknownMessage = "unknown"
 
-  val propsController = Props[FishStoreController]
+  val propsController = Props[FishStoreController] // Props is an immutable config object for creating actors
   val propsUnloader = Props[FishUnloader]
   val propsCatcher = Props[FishCatcher]
   val propsStacker = Props[FishStacker]
