@@ -35,6 +35,11 @@ object FishStoreTwoController extends Controller {
   def viewStoreTwo = Action.async { request =>
 	Future { Ok(views.html.fishstoretwo.render) }
   }
+  
+  /** watch dropped fish */
+  def viewStoreTwoWatch = Action.async { request =>
+	Future { Ok(views.html.droppedfishwatch.render) }
+  }
 
   /**
    * GET /store_one/catch/latest
