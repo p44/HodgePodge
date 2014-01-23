@@ -28,15 +28,22 @@ object FishStoreOne {
   case object Echo
   case object Done
   case class Deliver(shipment: List[Fish])
-  case class Unload(fish: Fish)
+  case class Unload(fish: Fish) // pass to catcher
   case class Catch(fish: Fish) // catch and hand off to an available stacker
-  case class Stack(fish: Fish) // possibly considers containers being full
+  case class Stack(fish: Fish) // put on ice
 
 }
 
-/** Controller */
+/** 
+ *  Controller 
+ *  
+ *  controller ! FishStoreOne.Deliver(shipment) --> Unloader --> Catcher + Stacker
+ *  
+ *  "like people" (that appear and disappear)
+ */
 class FishStoreController extends Actor with ActorLogging {
-  def receive = {
+  // receiving messages is what an actor does
+  def receive = { // PartialFunction[Any, Unit]  
     case FishStoreOne.Deliver(shipment) => {
       log.info("New delivery of this many fish: " + shipment.size)
       // create one new unloader for each delivery
@@ -54,7 +61,7 @@ class FishUnloader extends Actor with ActorLogging {
   def receive = {
     case FishStoreOne.Unload(fish) => {
       log.debug("Unloaded " + fish)
-      val catcher = context.actorOf(FishStoreOne.propsCatcher)
+      val catcher = context.actorOf(FishStoreOne.propsCatcher) // creates one new catcher per fish
       catcher ! FishStoreOne.Catch(fish) // catcher will stop itself
       context.parent ! FishStoreOne.Done
     }
@@ -109,4 +116,4 @@ class FishStacker extends Actor with ActorLogging {
 // 1. FishStoreOne.Deliver - The unloader is created but not stopped and not reused.  It could easily be reused
 // 2. Catch and Stack don't have any significant behavior, results only in a log.info
 // 3. It would be nice to send a delivery summary to the initiator - count and total weight.
-// 4. Handling of dead letter messages?
+// 4. How do we see the fish catching in the UI?

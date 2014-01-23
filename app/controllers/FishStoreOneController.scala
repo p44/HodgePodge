@@ -54,7 +54,7 @@ object FishStoreOneController extends Controller {
         case false => Future.successful(BadRequest("Please check your request for content type of json as well as the json format."))
         case _ => {
           // finally an akka actor call.  This is a tell, an asynchronous message send to an actor
-          controllerActor ! FishStoreOne.Deliver(delivery.get)
+          controllerActor ! FishStoreOne.Deliver(delivery.get) // fire and forget, no return
           val mt: Future[String] = FishStoreModels.makeMessageTimeJson("Delivery Received", System.currentTimeMillis())
           mt.map(s => Ok(s)) // because this map is here, flatMap must wrap otherwise it is Future[Future[SimpleResult]]
         }
