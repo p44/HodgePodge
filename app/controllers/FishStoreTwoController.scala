@@ -95,12 +95,21 @@ object FishStoreTwoController extends Controller {
   }
   
   /** Controller action serving activity for fish store two (no filter) */
-  def fishStoreTwoDeliveryFeed = Action { req =>
-    Logger.info("FEED fishStoreTwo - " + req.remoteAddress + " - fishStoreTwo connected")
-    Ok.chunked(FishStoreBroadcaster.fishStoreTwoOut
-      &> Concurrent.buffer(50)
-      &> connDeathWatch(req.remoteAddress)
-      &> EventSource()).as("text/event-stream")
+  def fishStoreTwoDeliveryFeed = Action { request =>
+    Logger.info("FEED fishStoreTwo - " + request.remoteAddress + " - fishStoreTwo connected")
+    val enumerator: Enumerator[JsValue] = FishStoreBroadcaster.fishStoreTwoOut
+    Ok.chunked(enumerator
+      through Concurrent.buffer(100)  // buffers chunks and frees the enumerator to keep processing
+      through connDeathWatch(request.remoteAddress)
+      through EventSource()).as("text/event-stream")
   }
+  
+  /*
+   * Chunked transfer encoding is a data transfer mechanism in version 1.1 of the Hypertext Transfer Protocol (HTTP) 
+   * in which a web server serves content in a series of chunks. 
+   * It uses the Transfer-Encoding HTTP response header instead of the Content-Length header
+   * http://www.playframework.com/documentation/2.2.0/ScalaStream
+   * http://en.wikipedia.org/wiki/Chunked_transfer_encoding
+   */
 
 }
