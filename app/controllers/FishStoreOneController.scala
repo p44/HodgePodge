@@ -35,6 +35,7 @@ object FishStoreOneController extends Controller {
    * Provides a new load of fish as json array (simulated)
    */
   def getCatchLatest = Action.async {
+    // functions returning futures
     val f: Future[String] = FishStoreModels.aBunchOfFishToJson(FishStoreModels.generateFish(defaultCatchSize))
     f.map(s => Ok(s)) // Note: f.onComplete does not work here because it returns Unit
   }
@@ -44,16 +45,18 @@ object FishStoreOneController extends Controller {
    * Takes a shipment of fish into the store.
    */
   def postDelivery = Action.async { request =>
-    val fDelivery = Future[Option[List[Fish]]] {
+    val fDelivery: Future[Option[List[Fish]]] = Future {
       resolveDeliveryJsonToObj(request)
     }
+    // futures and callbacks within other futures, introducing flatMap
     fDelivery.flatMap { delivery: Option[List[Fish]] =>
       delivery.isDefined match {
         case false => Future.successful(BadRequest("Please check your request for content type of json as well as the json format."))
         case _ => {
+          // finally an akka actor call.  This is a tell, an asynchronous message send to an actor
           controllerActor ! FishStoreOne.Deliver(delivery.get)
           val mt: Future[String] = FishStoreModels.makeMessageTimeJson("Delivery Received", System.currentTimeMillis())
-          mt.map(s => Ok(s))
+          mt.map(s => Ok(s)) // because this map is here, flatMap must wrap otherwise it is Future[Future[SimpleResult]]
         }
       }
     }
@@ -69,7 +72,7 @@ object FishStoreOneController extends Controller {
         Json.fromJson[List[Fish]](jsonBody.get).asOpt
       }
     }
-  }
+  } // no futures in this code, but the caller wraps in a Future {} block
   
 
 }
