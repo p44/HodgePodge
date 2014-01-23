@@ -12,4 +12,11 @@ object FishStoreBroadcaster {
    */
   val (fishStoreTwoOut, fishStoreTwoChannel) = Concurrent.broadcast[JsValue] 
   
+  /**
+   * Hub for distributing Fish Store Three Messages
+   *  fishStoreThreeOut: Enumerator[JsValue]
+   *  fishStoreThreeChannel: Channel[JsValue]
+   */
+  val (fishStoreThreeOut, fishStoreThreeChannel) = Concurrent.broadcast[JsValue] 
+  
 }
