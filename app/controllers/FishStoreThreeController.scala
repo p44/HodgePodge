@@ -57,11 +57,13 @@ object FishStoreThreeController extends Controller {
       delivery.isDefined match {
         case false => Future.successful(BadRequest("Please check your request for content type of json as well as the json format."))
         case _ => {
-          //controllerActor ! FishStoreThree.Deliver(delivery.get)
           val f: Future[Any] = controllerActor ? FishStoreThree.Deliver(delivery.get) // deliver with ask
-          val fdr: Future[DeliveryReceipt] = f.mapTo[DeliveryReceipt]
-          fdr.map { dr: DeliveryReceipt =>
-            Ok(Json.prettyPrint(Json.toJson(dr)))
+          val fodr: Future[Option[DeliveryReceipt]] = f.mapTo[Option[DeliveryReceipt]]
+          fodr.map { odr: Option[DeliveryReceipt] =>
+            odr.isDefined match {
+              case true => Ok(Json.prettyPrint(Json.toJson(odr.get)))
+              case _ => InternalServerError("""{"error": "Failed to Generate a receipt."}""") // 500
+            }
           }
         }
       }
@@ -93,9 +95,10 @@ object FishStoreThreeController extends Controller {
   def fishStoreThreeDeliveryFeed = Action { req =>
     Logger.info("FEED FishStoreThree - " + req.remoteAddress + " - FishStoreThree connected")
     Ok.chunked(FishStoreBroadcaster.fishStoreThreeOut
-      &> Concurrent.buffer(50)
+      &> Concurrent.buffer(100)
       &> connDeathWatch(req.remoteAddress)
       &> EventSource()).as("text/event-stream")
+      // &>  Compose this Enumerator with an Enumeratee. Alias for through
   }
 
 }
