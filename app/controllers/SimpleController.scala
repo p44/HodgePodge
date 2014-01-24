@@ -9,7 +9,7 @@ import play.api.mvc.Controller
 /**
  * Index page, hello page and other simple returns
  */
-object SimpleController extends Controller {
+object SimpleController extends Controller { // Defines utility methods to generate Action and Results types.
 
   lazy val homeMsg: String = "This is Hodge Podge"
   lazy val helloMsg: String = "Hello There" 

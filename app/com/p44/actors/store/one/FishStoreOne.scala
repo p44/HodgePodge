@@ -117,3 +117,5 @@ class FishStacker extends Actor with ActorLogging {
 // 2. Catch and Stack don't have any significant behavior, results only in a log.info
 // 3. It would be nice to send a delivery summary to the initiator - count and total weight.
 // 4. How do we see the fish catching in the UI?
+
+// go to FishStoreTwo for addressing the issues.

@@ -97,6 +97,7 @@ object FishStoreTwoController extends Controller {
   /** Controller action serving activity for fish store two (no filter) */
   def fishStoreTwoDeliveryFeed = Action { request =>
     Logger.info("FEED fishStoreTwo - " + request.remoteAddress + " - fishStoreTwo connected")
+    // Enumerator: a producer of typed chunks of data (non-blocking producer)
     val enumerator: Enumerator[JsValue] = FishStoreBroadcaster.fishStoreTwoOut
     Ok.chunked(enumerator
       through Concurrent.buffer(100)  // buffers chunks and frees the enumerator to keep processing

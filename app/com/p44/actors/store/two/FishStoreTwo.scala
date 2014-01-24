@@ -42,8 +42,8 @@ object FishStoreTwo {
   case class GenerateReceipt(ts: Long, shipment: List[Fish]) // New functionality, returns DeliveryReceipt
   case class Unload(ts: Long, fish: Fish)
   case class Catch(ts: Long, fish: Fish) // catch and hand off to an available stacker
-  case class Stack(ts: Long, fish: Fish) // possibly considers containers being full
-  case class AnnounceDroppedFish(droppedFish: DroppedFish)
+  case class Stack(ts: Long, fish: Fish) // persist to db
+  case class AnnounceDroppedFish(droppedFish: DroppedFish) // New functionality to watch dropped fish
 
   lazy val possibleExclamations = Seq("Darn it!", "I thought I had it!", "No no no!", "Sippery one!", "I wasn't looking",
     "Nuts!", "Aaaaaa!", "Dammit!", "Are you kidding?", "Bad throw.", "Bollocks!", "Nunen", "That's weird", "Again?")
@@ -75,6 +75,7 @@ class FishStoreController extends Actor with ActorLogging {
       // ask the calculator for a receipt, send the future back to sender
       val futureRecepit = (calculatorRef ? FishStoreTwo.GenerateReceipt(now, shipment))
       futureRecepit pipeTo sender // sends a future receipt to sender as Future[Any]
+      // pipeTo slide
       
       // An alternate implementation: local calc in the actor
       //sender ! FishStoreTwo.calcReceipt(now, shipment) 
@@ -102,7 +103,7 @@ class FishDeliveryCalculator extends Actor with ActorLogging {
 /** Unload */
 class FishUnloader extends Actor with ActorLogging {
 
-  // one dedicate commentator broadcasting messages about the workings of the store
+  // the commentator broadcasting messages about the workings of the store
   val commentatorRef = context.actorOf(FishStoreTwo.propsCommentator)
 
   def receive = {
@@ -153,7 +154,7 @@ class FishCatcher extends Actor with ActorLogging {
         }
         case _ => {
           stacker ! FishStoreTwo.Stack(ts, fish)
-          context.become(goodhands) // change to butterfingers state
+          context.become(goodhands) // change to goodhands state
         }
       }
     }
